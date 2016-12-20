@@ -3,6 +3,26 @@
 var survivalequip = angular.module('survivalequip', ['firebase']);
 
 survivalequip.controller('adminCtrl', function ($firebaseObject, $firebaseArray, $scope, $http, $rootScope, $timeout) {
+ 
+ $('.modal').modal({
+      dismissible: true, // Modal can be dismissed by clicking outside of the modal
+      opacity: .5, // Opacity of modal background
+      in_duration: 300, // Transition in duration
+      out_duration: 200, // Transition out duration
+      starting_top: '4%', // Starting top style attribute
+      ending_top: '10%', // Ending top style attribute
+    }
+  );
+ 
+$scope.setProduct = function(key){
+    $scope.selectedId = key;
+    console.log(key);
+}
+
+ $scope.delete = function(){
+
+ }
+ 
   var config = 
   {
     apiKey: "AIzaSyDhAHrdhpIahI-bL4XB5dGHicp2djp15Rg",
@@ -16,9 +36,10 @@ survivalequip.controller('adminCtrl', function ($firebaseObject, $firebaseArray,
 
 
 var ref = firebase.database().ref('ProductCategories');
-
 $rootScope.choices = $firebaseArray(ref);
 
+var ref = firebase.database().ref('products');
+$rootScope.products= $firebaseArray(ref);
 
     $scope.send = function (frm1) {
         Materialize.toast('Uploading...', 2000)
@@ -72,4 +93,58 @@ $rootScope.choices = $firebaseArray(ref);
                 Materialize.toast('Error adding data to database', 2000)
             })
     }
+
+
+
+
+$scope.setProduct = function(value){
+$rootScope.productToDelete = value.$id;
+}
+
+
+$scope.deleteProduct = function(){
+      Materialize.toast('Removing', 2000);
+    var key = $rootScope.productToDelete;
+
+        $http({
+        method: 'DELETE',
+        url:'https://tendajitours-8d352.firebaseio.com/products/' + key + '.json',        
+    })
+    .then(function(res){
+          Materialize.toast('Deleted Successfully', 2000);
+    })
+    .catch(function(err){
+ Materialize.toast('Delete UnSuccessfull', 2000);
+    })
+
+}
+
+$scope.editProduct = function(key,value){
+$rootScope.productToEdit = value.$id;
+}
+
+$scope.update = function(frm1){
+     Materialize.toast('Updating Product', 2000);
+  var key = $rootScope.productToEdit;
+    $http({
+        method: 'PATCH',
+        url:'https://tendajitours-8d352.firebaseio.com/products/' + key + '.json',  
+        data:{
+            category: frm1.category,
+            name: frm1.name,
+            description: frm1.description
+        }
+    })
+.then(function(res){
+     Materialize.toast('Updated Successfully', 2000);
+})
+.catch(function(err){
+ Materialize.toast('Unable To Update Retry Later', 2000);
+})
+
+}
+
+
+
+    
 })
